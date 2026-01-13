@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-test-deployment
+  labels:
+    app: api-test
+spec:
+  replicas: 1 # Nombre de pods (copies) que tu veux
+  selector:
+    matchLabels:
+      app: api-test
+  template:
+    metadata:
+      labels:
+        app: api-test
+    spec:
+      containers:
+      - name: api-test-container
+        # ⚠️ REMPLACE 'ton_pseudo' PAR TON VRAI USERNAME DOCKER HUB
+        image: devermyst/mon-image-test:v2
+        ports:
+        - containerPort: 8000
+        
+        # --- L'AUTO-GUÉRISON (SELF-HEALING) ---
+        # Kubernetes va vérifier cette route. 
+        # Si elle renvoie 500 (après le /break), il tue le pod et en recrée un.
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10 # On lui laisse 10s pour démarrer tranquille
+          periodSeconds: 10       # On vérifie toutes les 10 secondes
+
+        # On vérifie si le pod est prêt à recevoir du trafic
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 10
+
+---
+# (Bonus) Le Service pour accéder à ton API depuis l'extérieur
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-test-service
+spec:
+  type: LoadBalancer # Ou NodePort si tu es en local sans LoadBalancer
+  selector:
+    app: api-test
+  ports:
+    - protocol: TCP
+      port: 80 # Le port exposé à l'extérieur
+      targetPort: 8000 # Le port de ton conteneur Flask
