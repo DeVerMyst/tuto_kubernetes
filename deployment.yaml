@@ -18,6 +18,7 @@ spec:
       - name: api-test-container
         # ⚠️ REMPLACE 'ton_pseudo' PAR TON VRAI USERNAME DOCKER HUB
         image: devermyst/mon-image-test:v2
+        # imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
         

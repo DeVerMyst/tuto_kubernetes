@@ -1,17 +1,23 @@
-# 1. On part d'une version légère de Python (la même que tu utilises)
-FROM python:3.11-slim
+# 1. Utilisation d'une image légère et sécurisée
+FROM python:3.11-slim-bookworm
 
-# 2. On crée un dossier de travail dans le conteneur pour ne pas mettre le bazar
+# 2. On récupère l'exécutable uv depuis son image officielle (Multi-stage build)
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
+# 3. Dossier de travail
 WORKDIR /app
 
-# 3. On copie d'abord les requirements (pour utiliser le cache Docker si ça ne change pas)
-COPY requirements.txt .
+# 4. On copie les fichiers de configuration de uv (l'équivalent moderne du requirements.txt)
+# On le fait avant de copier le code pour optimiser le cache Docker
+COPY pyproject.toml uv.lock ./
 
-# 4. On installe les librairies
-RUN pip install --no-cache-dir -r requirements.txt
+# 5. On installe les dépendances
+# --system : Installe dans le Python global du conteneur (pas besoin de venv ici)
+# --frozen : Garantit que l'on respecte exactement le fichier uv.lock
+RUN uv pip install --system --frozen
 
-# 5. On copie tout le reste de ton code (api_test.py, etc.)
+# 6. On copie tout le reste
 COPY . .
 
-# 6. La commande que Docker lance au démarrage
+# 7. Commande de lancement (pense à utiliser le host 0.0.0.0 pour Docker !)
 CMD ["python", "api_test.py"]

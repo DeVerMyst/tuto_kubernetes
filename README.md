@@ -1,10 +1,4 @@
-C'est une excellente initiative. Avoir une "Cheat Sheet" (anti-sèche) propre est indispensable quand on apprend Kubernetes, car il y a beaucoup de commandes à retenir.
-
-Voici ton guide récapitulatif, formaté professionnellement pour tes étudiants ou ta documentation personnelle. J'ai remplacé toutes les données spécifiques par des variables génériques `<...>`.
-
----
-
-# 🚢 Guide de Déploiement : De l'API Python à Kubernetes
+# Guide de Déploiement : De l'API Python à Kubernetes
 
 Ce guide résume les étapes pour conteneuriser une application Python (FastAPI/Flask) avec **uv**, créer l'image Docker, et la déployer sur un cluster Kubernetes local.
 
@@ -17,10 +11,12 @@ Avant de toucher à Docker, il faut figer les dépendances de l'application.
 1. Assurez-vous que votre API contient les routes `/health` (pour les probes K8s) et `/break` (pour tester le self-healing).
 2. Générez le fichier standard pour Docker :
 
+Avant
 ```bash
 uv export --format requirements-txt > requirements.txt
-
 ```
+
+Maintenant on a juste besoin du fichier `uv.lock` et du coup du bon Dockerfile
 
 ---
 
@@ -73,9 +69,13 @@ docker push <ton-pseudo-docker>/<nom-image>:v1
 
 ```
 
+**Note**
+Si vous ne voulez pas pusher votre image, Kubernetes peut aussi gérer les images locales.
+Il suffit de mettre `imagePullPolicy: IfNotPresent` dans le fichier YAML du Deployment.
+
 ---
 
-## 4. Déploiement Kubernetes (K8s) ☸️
+## 4. Déploiement Kubernetes (K8s)
 
 Une fois l'image en ligne, on ordonne au cluster de la déployer.
 
@@ -100,7 +100,25 @@ Gère l'accès réseau et l'adresse IP stable.
 
 ```bash
 kubectl apply -f <nom-app>-service.yaml
+```
+**Note**
 
+Comme pour docker-compose on peut lancer plusieurs service d'un coup
+
+```mon-projet-ia/
+├── app/
+├── Dockerfile
+├── pyproject.toml
+└── k8s/
+    ├── api-deployment.yaml
+    ├── api-service.yaml
+    ├── db-deployment.yaml
+    └── db-service.yaml
+```
+Appliquer tous les fichiers YAML présents dans le dossier k8s
+
+```bash
+kubectl apply -f k8s/
 ```
 
 ---
@@ -128,8 +146,8 @@ Pour supprimer les ressources et ne pas encombrer le cluster.
 ```bash
 # Supprimer le déploiement (tue tous les pods associés)
 kubectl delete deployment <nom-deployment>
-
+```
+```bash
 # Supprimer le service (libère le port/IP)
 kubectl delete service <nom-service>
-
 ```
