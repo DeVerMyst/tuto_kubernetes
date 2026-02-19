@@ -1,23 +1,20 @@
-# 1. Utilisation d'une image légère et sécurisée
+# 0. Utilisation d'une image légère et sécurisée
 FROM python:3.11-slim-bookworm
 
-# 2. On récupère l'exécutable uv depuis son image officielle (Multi-stage build)
+# 1. On installe uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-# 3. Dossier de travail
+# 2. ON FORCE LE MODE SYSTEME
+# astuce pour que 'uv sync' n'essaie pas de créer un .venv
+ENV UV_SYSTEM_PYTHON=1
+
 WORKDIR /app
 
-# 4. On copie les fichiers de configuration de uv (l'équivalent moderne du requirements.txt)
-# On le fait avant de copier le code pour optimiser le cache Docker
+# 3. On synchronise les dépendances
 COPY pyproject.toml uv.lock ./
+RUN uv pip install --system --no-cache -r pyproject.toml
 
-# 5. On installe les dépendances
-# --system : Installe dans le Python global du conteneur (pas besoin de venv ici)
-# --frozen : Garantit que l'on respecte exactement le fichier uv.lock
-RUN uv pip install --system --frozen
-
-# 6. On copie tout le reste
+# 4. On finit par le code
 COPY . .
 
-# 7. Commande de lancement (pense à utiliser le host 0.0.0.0 pour Docker !)
 CMD ["python", "api_test.py"]

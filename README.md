@@ -138,8 +138,13 @@ Une fois déployé, voici les commandes vitales pour vérifier que tout fonction
 > `kubectl logs <nom-deployment>-d966f85c6-nsftg`
 
 ---
+## 6. Visualisation
 
-## 6. Nettoyage (Cleanup) 🧹
+`kubectl get pods`
+`kubectl get all`
+
+
+## 7. Nettoyage (Cleanup) 🧹
 
 Pour supprimer les ressources et ne pas encombrer le cluster.
 
@@ -147,6 +152,12 @@ Pour supprimer les ressources et ne pas encombrer le cluster.
 # Supprimer le déploiement (tue tous les pods associés)
 kubectl delete deployment <nom-deployment>
 ```
+
+```bash
+# Supprimer le déploiement avec le nom du fichier
+kubectl delete -f deployment.yaml
+```
+
 ```bash
 # Supprimer le service (libère le port/IP)
 kubectl delete service <nom-service>

@@ -71,19 +71,19 @@ kill 1
 L'attaque la plus sournoise. Le pod tourne, le processus tourne, mais l'application est "malade" (bloquée ou buggée).
 
 1. Allez sur la route de sabotage : **`http://localhost/break`**
-* *L'application vous prévient qu'elle va mourir.*
+   * *L'application vous prévient qu'elle va mourir.*
 
 
 2. Vérifiez son état de santé : **`http://localhost/health`**
-* *Elle retourne une erreur 500.*
+   * *Elle retourne une erreur 500.*
 
 
 3. Attendez... (environ 30 secondes, selon votre configuration `livenessProbe`).
 4. **Observation :**
-* Sans que vous touchiez à rien, le pod va redémarrer.
-* Le compteur **RESTARTS** augmente encore.
-* Si vous retournez sur `localhost/health`, tout est redevenu vert (`200 OK`).
-* **Pourquoi ?** La sonde **Liveness Probe** a détecté l'erreur 500 à répétition. Elle a signalé au cluster : "Ce pod est inutile, tuez-le et relancez-le".
+   * Sans que vous touchiez à rien, le pod va redémarrer.
+   * Le compteur **RESTARTS** augmente encore.
+   * Si vous retournez sur `localhost/health`, tout est redevenu vert (`200 OK`).
+   * **Pourquoi ?** La sonde **Liveness Probe** a détecté l'erreur 500 à répétition. Elle a signalé au cluster : "Ce pod est inutile, tuez-le et relancez-le".
 
 
 
